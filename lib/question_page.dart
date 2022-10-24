@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'reccomend_page.dart';
+
 class QuestionPage extends StatefulWidget {
   const QuestionPage({Key? key}) : super(key: key);
 
@@ -9,6 +11,8 @@ class QuestionPage extends StatefulWidget {
 
 class _QuestionPageState extends State<QuestionPage> {
   //ToDo: ここに使用する変数を定義しよう！
+  double selectNumber = 0;
+  String isSelectedItem = '選択してください';
 
   @override
   Widget build(BuildContext context) {
@@ -38,34 +42,73 @@ class _QuestionPageState extends State<QuestionPage> {
             const SizedBox(height: 20),
             Center(
               child: Text(
-                '0',
-                style: TextStyle(fontSize: 20, color: Colors.green),
+                selectNumber.toString(),
+                style: const TextStyle(fontSize: 20, color: Colors.green),
               ),
             ),
             Slider(
-                min: 0,
-                max: 10,
-                value: 0,
-                divisions: 10,
-                onChanged: (value) {}),
+              min: 0,
+              max: 10,
+              value: selectNumber,
+              divisions: 10,
+              label: '$selectNumber',
+              onChanged: (newValue) {
+                setState(() {
+                  selectNumber = newValue;
+                });
+              },
+              activeColor: Colors.green,
+              inactiveColor: Colors.grey,
+            ),
             const Spacer(),
             const Text('■ 一番辛い箇所はどちらですか？', style: TextStyle(fontSize: 15)),
             const SizedBox(height: 10),
             DropdownButton(
                 items: const [
-                  DropdownMenuItem(child: Text('選択してください'), value: '選択してください'),
+                  DropdownMenuItem(value: '選択してください', child: Text('選択してください')),
+                  DropdownMenuItem(value: '肩', child: Text('肩')),
+                  DropdownMenuItem(value: '首', child: Text('首')),
+                  DropdownMenuItem(value: '肩甲骨', child: Text('肩甲骨')),
+                  DropdownMenuItem(value: '腰', child: Text('腰')),
+                  DropdownMenuItem(value: '足', child: Text('足'))
                 ],
-                value: '選択してください',
+                value: isSelectedItem,
                 underline: Container(
                   height: 1,
                   color: Colors.lightGreen,
                 ),
                 isExpanded: true,
-                onChanged: (value) {}),
+                onChanged: (String? value) {
+                  setState(() {
+                    isSelectedItem = value!;
+                  });
+                }),
             const Spacer(),
             Center(
                 child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (selectNumber == 0) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('本日のお疲れを入力してください'),
+                          backgroundColor: Colors.red,
+                        ));
+                      } else if (isSelectedItem == '選択してください') {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('一番辛い箇所を選択してください'),
+                          backgroundColor: Colors.red,
+                        ));
+                      } else {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RecommendPage(
+                                  tiredPoint: selectNumber,
+                                  painPart: isSelectedItem),
+                            ));
+                      }
+                    },
                     child: const Text(
                       '決定',
                       style: TextStyle(fontSize: 15),
